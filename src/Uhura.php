@@ -17,6 +17,12 @@ class Uhura
         return sprintf("%s%s", $this->api, $this->resource);
     }
 
+    public function __get($name)
+    {
+        $this->resource .= sprintf("/%s", $name);
+        return $this;
+    }
+
     public function __call($method, $args)
     {
         $this->resource .= sprintf("/%s/%s", $method, $args[0]);
