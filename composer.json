@@ -1,0 +1,22 @@
+{
+    "name": "colindecarlo/uhura",
+    "description": "A communications officer for RESTful apis",
+    "require": {
+        "guzzlehttp/guzzle": "^6.1"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^5.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Colin DeCarlo",
+            "email": "colin@thedecarlos.ca"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Uhura\\": "src/"
+        }
+    }
+}
