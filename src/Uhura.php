@@ -9,6 +9,7 @@ class Uhura
 {
     private $api;
     private $http;
+    private $responseHandler;
 
     private $resource = '';
     private $token = null;
@@ -17,6 +18,7 @@ class Uhura
     {
         $this->api = $api;
         $this->http = new Client(['base_uri' => $this->api]);
+        $this->responseHandler = new ResponseHandler\Passthru;
     }
 
     public static function test($api)
@@ -29,6 +31,11 @@ class Uhura
         ]);
 
         return $uhura;
+    }
+
+    public function useResponseHandler($handler)
+    {
+        $this->responseHandler = $handler;
     }
 
     public function useBasicAuthentication($username, $password)
@@ -80,7 +87,9 @@ class Uhura
             'form_params' => $payload
         ]);
 
-        return $this->http->request($method, $this->resource, $options);
+        return $this->responseHandler->handle(
+            $this->http->request($method, $this->resource, $options)
+        );
     }
 
     public function __get($name)

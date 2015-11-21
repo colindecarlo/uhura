@@ -102,7 +102,7 @@ class UhuraTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('http://example.com/users/1', $handler->getLastRequest()->getUri());
     }
 
-    public function test_that_uhura_sends_an_authorization_header_when_sending_authenticated_requests()
+    public function test_that_uhura_sends_an_basic_authorization_header_when_sending_authenticated_requests_using_basic_authentication()
     {
         $handler = $this->uhura->getHttp()->getConfig('handler');
         $handler->append(new Response);
@@ -116,5 +116,22 @@ class UhuraTest extends PHPUnit_Framework_TestCase
             sprintf('Basic %s', base64_encode('username:some_token')),
             $handler->getLastRequest()->getHeader('Authorization')[0]
         );
+    }
+
+    public function test_that_uhura_returns_a_json_decode_response_body_when_using_the_json_response_handler()
+    {
+        $this->uhura->useResponseHandler(new \Uhura\ResponseHandler\Json);
+
+        $expectedResponse = [
+            'status' => 'ok',
+            'data' => [
+                'foo' => 'bar'
+            ]
+        ];
+
+        $handler = $this->uhura->getHttp()->getConfig('handler');
+        $handler->append(new Response(200, [], json_encode($expectedResponse)));
+
+        $this->assertEquals($this->uhura->get(), $expectedResponse);
     }
 }
