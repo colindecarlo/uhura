@@ -7,9 +7,11 @@ use GuzzleHttp\Handler\MockHandler;
 
 class Uhura
 {
-    private $api = '';
-    private $resource = '';
+    private $api;
     private $http;
+
+    private $resource = '';
+    private $token = null;
 
     public function __construct($api)
     {
@@ -29,6 +31,18 @@ class Uhura
         return $uhura;
     }
 
+    public function useBasicAuthentication($username, $password)
+    {
+        $token = base64_encode(sprintf("%s:%s", $username, $password));
+        return $this->authenticate(sprintf("Basic %s", $token));
+    }
+
+    public function authenticate($token)
+    {
+        $this->token = $token;
+        return $this;
+    }
+
     public function getHttp()
     {
         return $this->http;
@@ -36,27 +50,37 @@ class Uhura
 
     public function get()
     {
-        return $this->http->get($this->resource);
+        return $this->request('GET');
     }
 
     public function create($payload)
     {
-        return $this->http->post($this->resource, ['form_params' => $payload]);
+        return $this->request('POST', $payload);
     }
 
     public function update($payload)
     {
-        return $this->http->put($this->resource, ['form_params' => $payload]);
+        return $this->request('PUT', $payload);
     }
 
     public function delete()
     {
-        return $this->http->delete($this->resource);
+        return $this->request('DELETE');
     }
 
     public function url()
     {
         return sprintf("%s%s", $this->api, $this->resource);
+    }
+
+    private function request($method, $payload = null)
+    {
+        $options = array_filter([
+            'headers' => array_filter(['Authorization' => $this->token]),
+            'form_params' => $payload
+        ]);
+
+        return $this->http->request($method, $this->resource, $options);
     }
 
     public function __get($name)
