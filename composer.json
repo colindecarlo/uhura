@@ -1,7 +1,8 @@
 {
-    "name": "colindecarlo/uhura",
+    "name": "uhura/uhura",
     "description": "A communications officer for RESTful apis",
     "require": {
+        "php": ">=5.5",
         "guzzlehttp/guzzle": "^6.1"
     },
     "require-dev": {
