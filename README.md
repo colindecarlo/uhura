@@ -185,4 +185,4 @@ Colin DeCarlo, colin@thedecarlos.ca
 
 ## License
 
-Collection is licensed under the MIT License - see the LICENSE file for details
+Uhura is licensed under the MIT License - see the LICENSE file for details
