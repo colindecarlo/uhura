@@ -25,21 +25,21 @@ resource you want.
 
 ####Examples
 
-*Send a GET request to `http://someapi.com/users`*
+**Send a GET request to `http://someapi.com/users`**
 
 ```php
 $uhura = new Uhura('http://someapi.com');
 $response = $uhura->users->get();
 ```
 
-*Send a GET request to `http://someapi.com/users/1`*
+**Send a GET request to `http://someapi.com/users/1`**
 
 ```php
 $uhura = new Uhura('http://someapi.com');
 $response = $uhura->users(1)->get();
 ```
 
-*Send a GET request to `http://someapi.com/users/1/blogs/some-blog/comments`*
+**Send a GET request to `http://someapi.com/users/1/blogs/some-blog/comments`**
 
 ```php
 $uhura = new Uhura('http://someapi.com');
@@ -51,13 +51,13 @@ CRUD operations are super simple with Uhura and are mapped to the `create`, `get
 `delete` methods respectively.
 
 Operation | Method Signature
-----------------------------
+----------|-----------------
 Create | `create($payload)`
 Read | `get()`
 Update | `update($payload)`
 Delete | `delete()`
 
-*`create(array $payload)*
+**`create(array $payload)`**
 
 Use Uhura's `create` method to create resources. The `create` method accepts an associative array
 of attributes which are sent to the API in the request body as a `x-www-form-urlencoded` string. 
@@ -67,7 +67,7 @@ $uhura = new Uhura('http://someapi.com');
 $uhura->users->create(['email' => 'example@example.com']);
 ```
 
-*`get()`*
+**`get()`**
 
 Use Uhura's `get` method to get API resources.
 
@@ -76,7 +76,7 @@ $uhura = new Uhura('http://someapi.com');
 $response = $uhura->users->get();
 ```
 
-*`update($payload)`*
+**`update($payload)`**
 
 Use Uhura's `update` method to update a resource. The `update` method accepts an associative array
 of attributes which are sent to the API in the request body as a `x-www-form-urlencoded` string. 
@@ -86,7 +86,7 @@ $uhura = new Uhura('http://someapi.com');
 $uhura->users(1)->update(['name' => 'John Doe']);
 ```
 
-*`delete()`*
+**`delete()`**
 
 Use Uhura's `delete` method to delete a resource.
 
@@ -100,7 +100,7 @@ $uhura->users(1)->delete();
 Uhura makes authenticated requests by adding the `Authorization` header to each request that is
 made.
 
-*Using HTTP Basic Auth*
+**Using HTTP Basic Auth**
 
 Tell Uhura to use HTTP Basic Auth with the `useBasicAuthentication($username, $password)` method.
 
@@ -111,7 +111,7 @@ $uhura->useBasicAuthentication('someuser', 'somepassword');
 $uhura->user->update(['email' => 'example@example.com']);
 ```
 
-*Explicitly Setting the Authorization Header*
+**Explicitly Setting the Authorization Header**
 
 You can explicitly set the value of the `Authorization` header by using Uhura's
 `authenticate($token)` method.
@@ -147,7 +147,7 @@ $uhura->users(1)->get();
 */
 ```
 
-*Writing Custom Response Handlers*
+**Writing Custom Response Handlers**
 
 Writing your own custom response handler is super simple. Response Handlers are just simple classes
 which define a `handle($response)` method. Whatever is returned from the `handle` method is what
