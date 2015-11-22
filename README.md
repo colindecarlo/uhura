@@ -177,3 +177,12 @@ echo (string)($uhura->users(1)->get());
     </user>
 */
 ```
+
+
+## Author
+
+Colin DeCarlo, colin@thedecarlos.ca
+
+## License
+
+Collection is licensed under the MIT License - see the LICENSE file for details
