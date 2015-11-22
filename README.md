@@ -14,7 +14,7 @@ $response = $github->users->colindecarlo->repos->get();
 
 Install Uhura using composer.
 
-```sh
+```bash
 $ composer require uhura/uhura
 ```
 
@@ -134,7 +134,7 @@ You can tell Uhura to pass API responses through a Response Handler to augment t
 the various request methods. For instance, Uhura ships with a `Json` Response Handler which consumes
 the response and returns the decoded JSON response body.
 
-``` 
+```php
 $uhura = new Uhura('https://someapi.com');
 $uhura->useResponseHandler(new Uhura\ResponseHandler\Json);
 
