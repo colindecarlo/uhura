@@ -43,7 +43,7 @@ $response = $uhura->users(1)->get();
 
 ```php
 $uhura = new Uhura('http://someapi.com');
-$response = $uhura->users(1)-blogs('some-blog')->comments->get();
+$response = $uhura->users(1)->blogs('some-blog')->comments->get();
 ```
 ###CRUD
 
