@@ -55,9 +55,9 @@ class Uhura
         return $this->http;
     }
 
-    public function get()
+    public function get($queryParams = [])
     {
-        return $this->request('GET');
+        return $this->request('GET', $queryParams);
     }
 
     public function create($payload)
@@ -82,14 +82,26 @@ class Uhura
 
     private function request($method, $payload = null)
     {
-        $options = array_filter([
-            'headers' => array_filter(['Authorization' => $this->token]),
-            'form_params' => $payload
-        ]);
+        $options = $this->buildOptionsForRequest($method, $payload);
 
         return $this->responseHandler->handle(
             $this->http->request($method, $this->resource, $options)
         );
+    }
+
+    private function buildOptionsForRequest($method, $payload)
+    {
+        $options = [];
+        if ($this->token) {
+            $options['headers'] = ['Authorization' => $this->token];
+        }
+
+        if ($payload) {
+            $key = $method == 'GET' ? 'query' : 'form_params';
+            $options[$key] = $payload;
+        }
+
+        return $options;
     }
 
     public function __get($name)

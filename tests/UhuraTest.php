@@ -11,6 +11,7 @@ class UhuraTest extends PHPUnit_Framework_TestCase
 
     public function setUp()
     {
+        parent::setUp();
         $this->uhura = Uhura::test('http://example.com');
     }
 
@@ -133,5 +134,15 @@ class UhuraTest extends PHPUnit_Framework_TestCase
         $handler->append(new Response(200, [], json_encode($expectedResponse)));
 
         $this->assertEquals($this->uhura->get(), $expectedResponse);
+    }
+
+    public function test_that_uhura_can_attach_a_query_string_to_get_requests()
+    {
+        $handler = $this->uhura->getHttp()->getConfig('handler');
+        $handler->append(new Response);
+
+        $this->uhura->users->get(['foo' => 'bar']);
+
+        $this->assertEquals('foo=bar', $handler->getLastRequest()->getUri()->getQuery());
     }
 }
