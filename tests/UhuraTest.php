@@ -145,4 +145,15 @@ class UhuraTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('foo=bar', $handler->getLastRequest()->getUri()->getQuery());
     }
+
+    public function test_that_uhura_respects_the_version_specifier_of_apis()
+    {
+        $this->uhura = Uhura::test('http://example.com/v2');
+        $handler = $this->uhura->getHttp()->getConfig('handler');
+        $handler->append(new Response);
+
+        $this->uhura->users(1)->blog->get();
+
+        $this->assertEquals('http://example.com/v2/users/1/blog', (string)$handler->getLastRequest()->getUri());
+    }
 }

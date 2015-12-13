@@ -11,12 +11,12 @@ class Uhura
     private $http;
     private $responseHandler;
 
-    private $resource = '';
+    private $resource = [];
     private $token = null;
 
     public function __construct($api)
     {
-        $this->api = $api;
+        $this->setApiRoot($api);
         $this->http = new Client(['base_uri' => $this->api]);
         $this->responseHandler = new ResponseHandler\Passthru;
     }
@@ -26,11 +26,16 @@ class Uhura
         $uhura = new static($api);
 
         $uhura->http = new Client([
-            'base_uri' => $api,
+            'base_uri' => $uhura->api,
             'handler' => new MockHandler
         ]);
 
         return $uhura;
+    }
+
+    protected function setApiRoot($api)
+    {
+        $this->api = strrev($api)[0] == '/' ? $api : $api . '/';
     }
 
     public function useResponseHandler($handler)
@@ -77,7 +82,12 @@ class Uhura
 
     public function url()
     {
-        return sprintf("%s%s", $this->api, $this->resource);
+        return sprintf("%s%s", $this->api, $this->getResource());
+    }
+
+    public function getResource()
+    {
+        return implode('/', $this->resource);
     }
 
     private function request($method, $payload = null)
@@ -85,7 +95,7 @@ class Uhura
         $options = $this->buildOptionsForRequest($method, $payload);
 
         return $this->responseHandler->handle(
-            $this->http->request($method, $this->resource, $options)
+            $this->http->request($method, $this->getResource(), $options)
         );
     }
 
@@ -104,15 +114,20 @@ class Uhura
         return $options;
     }
 
+    protected function appendToResource(/* $args */)
+    {
+        $this->resource = array_merge($this->resource, func_get_args());
+    }
+
     public function __get($name)
     {
-        $this->resource .= sprintf("/%s", $name);
+        $this->appendToResource($name);
         return $this;
     }
 
     public function __call($method, $args)
     {
-        $this->resource .= sprintf("/%s/%s", $method, $args[0]);
+        $this->appendToResource($method, $args[0]);
         return $this;
     }
 }
