@@ -156,4 +156,19 @@ class UhuraTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('http://example.com/v2/users/1/blog', (string)$handler->getLastRequest()->getUri());
     }
+
+    public function test_that_uhura_can_make_multiple_requests()
+    {
+        $handler = $this->uhura->getHttp()->getConfig('handler');
+        $handler->append(
+            new Response,
+            new Response
+        );
+
+        $this->uhura->users->get();
+        $this->assertEquals('http://example.com/users', (string)$handler->getLastRequest()->getUri());
+
+        $this->uhura->users(1)->blog->get();
+        $this->assertEquals('http://example.com/users/1/blog', (string)$handler->getLastRequest()->getUri());
+    }
 }

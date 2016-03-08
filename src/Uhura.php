@@ -90,13 +90,20 @@ class Uhura
         return implode('/', $this->resource);
     }
 
+    public function reset()
+    {
+        $this->resource = [];
+    }
+
     private function request($method, $payload = null)
     {
-        $options = $this->buildOptionsForRequest($method, $payload);
-
-        return $this->responseHandler->handle(
-            $this->http->request($method, $this->getResource(), $options)
+        $response = $this->responseHandler->handle(
+            $this->http->request($method, $this->getResource(), $this->buildOptionsForRequest($method, $payload))
         );
+
+        $this->reset();
+
+        return $response;
     }
 
     private function buildOptionsForRequest($method, $payload)
