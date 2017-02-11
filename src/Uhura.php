@@ -10,6 +10,7 @@ class Uhura
     private $api;
     private $http;
     private $responseHandler;
+    private $resourceSuffix;
 
     private $resource = [];
     private $token = null;
@@ -41,6 +42,11 @@ class Uhura
     public function useResponseHandler($handler)
     {
         $this->responseHandler = $handler;
+    }
+
+    public function useResourceSuffix($suffix)
+    {
+        $this->resourceSuffix = $suffix;
     }
 
     public function useBasicAuthentication($username, $password)
@@ -87,7 +93,7 @@ class Uhura
 
     public function getResource()
     {
-        return implode('/', $this->resource);
+        return implode('/', $this->resource) . $this->resourceSuffix;
     }
 
     public function reset()
