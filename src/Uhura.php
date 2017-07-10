@@ -2,13 +2,11 @@
 
 namespace Uhura;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
+use Zttp\ZttpRequest;
 
 class Uhura
 {
     private $api;
-    private $http;
     private $responseHandler;
 
     private $resource = [];
@@ -17,20 +15,7 @@ class Uhura
     public function __construct($api)
     {
         $this->setApiRoot($api);
-        $this->http = new Client(['base_uri' => $this->api]);
         $this->responseHandler = new ResponseHandler\Passthru;
-    }
-
-    public static function test($api)
-    {
-        $uhura = new static($api);
-
-        $uhura->http = new Client([
-            'base_uri' => $uhura->api,
-            'handler' => new MockHandler
-        ]);
-
-        return $uhura;
     }
 
     protected function setApiRoot($api)
@@ -55,11 +40,6 @@ class Uhura
         return $this;
     }
 
-    public function getHttp()
-    {
-        return $this->http;
-    }
-
     public function get($queryParams = [])
     {
         return $this->request('GET', $queryParams);
@@ -71,6 +51,11 @@ class Uhura
     }
 
     public function update($payload)
+    {
+        return $this->request('PATCH', $payload);
+    }
+
+    public function replace($payload)
     {
         return $this->request('PUT', $payload);
     }
@@ -97,28 +82,20 @@ class Uhura
 
     private function request($method, $payload = null)
     {
-        $response = $this->responseHandler->handle(
-            $this->http->request($method, $this->getResource(), $this->buildOptionsForRequest($method, $payload))
+        return $this->responseHandler->handle(
+            $this->prepareRequest()->{$method}($this->url(), $payload)
         );
-
-        $this->reset();
-
-        return $response;
     }
 
-    private function buildOptionsForRequest($method, $payload)
+    private function prepareRequest()
     {
-        $options = [];
+        $zttp = ZttpRequest::new()->asFormParams();
+
         if ($this->token) {
-            $options['headers'] = ['Authorization' => $this->token];
+            $zttp->withHeaders(['Authorization' => $this->token]);
         }
 
-        if ($payload) {
-            $key = $method == 'GET' ? 'query' : 'form_params';
-            $options[$key] = $payload;
-        }
-
-        return $options;
+        return $zttp;
     }
 
     protected function appendToResource(/* $args */)

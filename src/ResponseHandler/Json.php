@@ -6,6 +6,6 @@ class Json
 {
     public function handle($response)
     {
-        return json_decode($response->getBody()->getContents(), true);
+        return $response->json();
     }
 }

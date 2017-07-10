@@ -2,9 +2,6 @@
 
 use Uhura\Uhura;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Response;
-
 class UhuraTest extends PHPUnit_Framework_TestCase
 {
     public $uhura;
@@ -12,13 +9,13 @@ class UhuraTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         parent::setUp();
-        $this->uhura = Uhura::test('http://example.com');
+        $this->uhura = new Uhura('http://localhost:' . getenv('TEST_SERVER_PORT'));
     }
 
     public function test_that_uhura_can_return_the_url_of_a_resource()
     {
         $this->assertEquals(
-            'http://example.com/users/1',
+            'http://localhost:' . getenv('TEST_SERVER_PORT') . '/users/1',
             $this->uhura->users(1)->url()
         );
     }
@@ -26,7 +23,7 @@ class UhuraTest extends PHPUnit_Framework_TestCase
     public function test_that_uhura_can_return_the_url_of_a_nested_resource()
     {
         $this->assertEquals(
-            'http://example.com/users/1/blogs/my-blog',
+            'http://localhost:' . getenv('TEST_SERVER_PORT') . '/users/1/blogs/my-blog',
             $this->uhura->users(1)->blogs('my-blog')->url()
         );
     }
@@ -34,88 +31,76 @@ class UhuraTest extends PHPUnit_Framework_TestCase
     public function test_that_uhura_can_return_the_url_of_a_collection_of_resources()
     {
         $this->assertEquals(
-            'http://example.com/users',
+            'http://localhost:' . getenv('TEST_SERVER_PORT') . '/users',
             $this->uhura->users->url()
         );
     }
 
     public function test_that_uhura_sends_a_get_request_for_the_correct_resource()
     {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
+        $response = $this->uhura->users(1)->get()->json();
 
-        $this->uhura->users(1)->get();
-
-        $this->assertEquals(0, $handler->count());
-        $this->assertEquals('GET', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('http://example.com/users/1', $handler->getLastRequest()->getUri());
+        $this->assertEquals('GET', $response['method']);
+        $this->assertEquals('users/1', $response['path']);
     }
 
     public function test_that_uhura_sends_a_post_reequest_with_the_correct_parameters_when_creating_resources()
     {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
-
         $user = [
             'email' => 'test@example.com',
         ];
 
-        $this->uhura->users->create($user);
+        $response = $this->uhura->users->create($user)->json();
 
-        $this->assertEquals(0, $handler->count());
-        $this->assertEquals('POST', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('http://example.com/users', $handler->getLastRequest()->getUri());
-
-        $params = [];
-        parse_str($handler->getLastRequest()->getBody()->getContents(), $params);
-        $this->assertEquals($user, $params);
+        $this->assertEquals('POST', $response['method']);
+        $this->assertEquals('users', $response['path']);
+        $this->assertEquals($user, $response['form_params']);
     }
 
-    public function test_that_uhura_sends_a_put_request_with_the_correct_parameters_when_updating_a_resource()
+    public function test_that_uhura_sends_a_patch_request_with_the_correct_parameters_when_updating_a_resource()
     {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
-
         $user = [
             'email' => 'test@example.com',
         ];
 
-        $this->uhura->users(1)->update($user);
+        $response = $this->uhura->users(1)->update($user)->json();
 
-        $this->assertEquals(0, $handler->count());
-        $this->assertEquals('PUT', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('http://example.com/users/1', $handler->getLastRequest()->getUri());
+        $this->assertEquals('PATCH', $response['method']);
+        $this->assertEquals('users/1', $response['path']);
+        $this->assertEquals($user, $response['form_params']);
+    }
 
-        $params = [];
-        parse_str($handler->getLastRequest()->getBody()->getContents(), $params);
-        $this->assertEquals($user, $params);
+    public function test_that_uhura_sends_a_put_request_with_the_correct_parameters_when_replacing_a_resource()
+    {
+        $user = [
+            'email' => 'test@example.com',
+        ];
+
+        $response = $this->uhura->users(1)->replace($user)->json();
+
+        $this->assertEquals('PUT', $response['method']);
+        $this->assertEquals('users/1', $response['path']);
+        $this->assertEquals($user, $response['form_params']);
     }
 
     public function test_that_uhura_sends_a_delete_request_to_the_correct_url_when_deleting_a_resource()
     {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
+        $response = $this->uhura->users(1)->delete()->json();
 
-        $this->uhura->users(1)->delete();
-
-        $this->assertEquals(0, $handler->count());
-        $this->assertEquals('DELETE', $handler->getLastRequest()->getMethod());
-        $this->assertEquals('http://example.com/users/1', $handler->getLastRequest()->getUri());
+        $this->assertEquals('DELETE', $response['method']);
+        $this->assertEquals('users/1', $response['path']);
     }
 
     public function test_that_uhura_sends_an_basic_authorization_header_when_sending_authenticated_requests_using_basic_authentication()
     {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
-
         $this->uhura->useBasicAuthentication('username', 'some_token');
 
-        $this->uhura->users->get();
+        $response = $this->uhura->users->get()->json();
 
-        $this->assertTrue($handler->getLastRequest()->hasHeader('Authorization'));
+        $this->assertArrayHasKey('authorization', $response['headers']);
         $this->assertEquals(
             sprintf('Basic %s', base64_encode('username:some_token')),
-            $handler->getLastRequest()->getHeader('Authorization')[0]
+            $response['headers']['authorization'][0]
         );
     }
 
@@ -124,51 +109,29 @@ class UhuraTest extends PHPUnit_Framework_TestCase
         $this->uhura->useResponseHandler(new \Uhura\ResponseHandler\Json);
 
         $expectedResponse = [
-            'status' => 'ok',
-            'data' => [
+            'method' => 'GET',
+            'path' => '/',
+            'form_params' => [
                 'foo' => 'bar'
             ]
         ];
 
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response(200, [], json_encode($expectedResponse)));
-
-        $this->assertEquals($this->uhura->get(), $expectedResponse);
+        $this->assertArraySubset($expectedResponse, $this->uhura->get(['foo' => 'bar']));
     }
 
     public function test_that_uhura_can_attach_a_query_string_to_get_requests()
     {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
+        $response = $this->uhura->users->get(['foo' => 'bar'])->json();
 
-        $this->uhura->users->get(['foo' => 'bar']);
-
-        $this->assertEquals('foo=bar', $handler->getLastRequest()->getUri()->getQuery());
+        $this->assertEquals(['foo' => 'bar'], $response['form_params']);
     }
 
     public function test_that_uhura_respects_the_version_specifier_of_apis()
     {
-        $this->uhura = Uhura::test('http://example.com/v2');
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(new Response);
+        $this->uhura = new Uhura('http://localhost:' . getenv('TEST_SERVER_PORT') . '/v2');
 
-        $this->uhura->users(1)->blog->get();
+        $response = $this->uhura->users(1)->blog->get()->json();
 
-        $this->assertEquals('http://example.com/v2/users/1/blog', (string)$handler->getLastRequest()->getUri());
-    }
-
-    public function test_that_uhura_can_make_multiple_requests()
-    {
-        $handler = $this->uhura->getHttp()->getConfig('handler');
-        $handler->append(
-            new Response,
-            new Response
-        );
-
-        $this->uhura->users->get();
-        $this->assertEquals('http://example.com/users', (string)$handler->getLastRequest()->getUri());
-
-        $this->uhura->users(1)->blog->get();
-        $this->assertEquals('http://example.com/users/1/blog', (string)$handler->getLastRequest()->getUri());
+        $this->assertEquals('v2/users/1/blog', $response['path']);
     }
 }
