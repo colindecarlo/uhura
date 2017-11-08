@@ -3,7 +3,8 @@
     "description": "A communications officer for RESTful apis",
     "require": {
         "php": ">=5.5",
-        "guzzlehttp/guzzle": "^6.1"
+        "guzzlehttp/guzzle": "^6.1",
+        "symfony/psr-http-message-bridge": "0.2"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.0"
