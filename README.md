@@ -1,4 +1,4 @@
-#Uhura
+# Uhura
 
 A communications officer for RESTful APIs
 
@@ -10,7 +10,7 @@ $github = new Uhura('https://api.github.com');
 $response = $github->users->colindecarlo->repos->get();
 ```
 
-##Installation
+## Installation
 
 Install Uhura using composer.
 
@@ -18,12 +18,12 @@ Install Uhura using composer.
 $ composer require uhura/uhura
 ```
 
-##Making Requests
+## Making Requests
 
 Uhura maps what you ask for in your Demeter chain over to the URL that is used to access the
 resource you want.
 
-####Examples
+#### Examples
 
 **Send a GET request to `http://someapi.com/users`**
 
@@ -45,7 +45,7 @@ $response = $uhura->users(1)->get();
 $uhura = new Uhura('http://someapi.com');
 $response = $uhura->users(1)->blogs('some-blog')->comments->get();
 ```
-###CRUD
+#### CRUD
 
 CRUD operations are super simple with Uhura and are mapped to the `create`, `get`, `update` and
 `delete` methods respectively.
@@ -95,7 +95,7 @@ $uhura = new Uhura('http://someapi.com');
 $uhura->users(1)->delete();
 ```
 
-###Authentication
+### Authentication
 
 Uhura makes authenticated requests by adding the `Authorization` header to each request that is
 made.
@@ -123,12 +123,12 @@ $uhura->authenticate('Bearer somebearertoken');
 $uhura->user->update(['email' => 'example@example.com']);
 ```
 
-##Working With Responses
+## Working With Responses
 
 By default, Uhura returns [PSR7 compliant](http://www.php-fig.org/psr/psr-7) response objects.
 Working with them would be as simple as, oh I don't know, a `GuzzleHttp\Psr7\Response` object.
 
-###Response Handlers
+### Response Handlers
 
 You can tell Uhura to pass API responses through a Response Handler to augment the return value of
 the various request methods. For instance, Uhura ships with a `Json` Response Handler which consumes
