@@ -23,7 +23,7 @@ $ composer require uhura/uhura
 Uhura maps what you ask for in your Demeter chain over to the URL that is used to access the
 resource you want.
 
-#### Examples
+### Examples
 
 **Send a GET request to `http://someapi.com/users`**
 
@@ -45,7 +45,8 @@ $response = $uhura->users(1)->get();
 $uhura = new Uhura('http://someapi.com');
 $response = $uhura->users(1)->blogs('some-blog')->comments->get();
 ```
-#### CRUD
+
+### CRUD
 
 CRUD operations are super simple with Uhura and are mapped to the `create`, `get`, `update` and
 `delete` methods respectively.
@@ -178,11 +179,10 @@ echo (string)($uhura->users(1)->get());
 */
 ```
 
-
 ## Author
 
 Colin DeCarlo, colin@thedecarlos.ca
 
 ## License
 
-Uhura is licensed under the MIT License - see the LICENSE file for details
+Uhura is licensed under the MIT License - see the LICENSE file for details.
