@@ -14,12 +14,19 @@ class Uhura
 
     private $resource = [];
     private $token = null;
+    private $headers = [];
+    private $payLoad = 'json';
 
     public function __construct($api)
     {
         $this->setApiRoot($api);
         $this->http = new Client(['base_uri' => $this->api]);
         $this->responseHandler = new ResponseHandler\Passthru;
+    }
+
+    function setPayloadType($type = null)
+    {
+        $this->payLoad = $type;
     }
 
     public static function test($api)
@@ -32,6 +39,11 @@ class Uhura
         ]);
 
         return $uhura;
+    }
+
+    function setHeaders($headers)
+    {
+        $this->headers = $headers;
     }
 
     protected function setApiRoot($api)
@@ -119,11 +131,27 @@ class Uhura
             $options['headers'] = ['Authorization' => $this->token];
         }
 
+        if (!empty($this->headers)) {
+            foreach ($this->headers as $name => $value) {
+                $options['headers'][$name] = $value;
+            }
+        }
         if ($payload) {
             $key = $method == 'GET' ? 'query' : 'form_params';
-            $options[$key] = $payload;
+            if ($method != 'GET') {
+                if ($this->payLoad == 'json') {
+                    $options['json'] = $payload;
+                } else {
+                    $options[$key] = $payload;
+                }
+
+            } else {
+                $options[$key] = $payload;
+            }
         }
 
+        //    dd($options);
+     //   $options['debug'] = true;
         return $options;
     }
 
